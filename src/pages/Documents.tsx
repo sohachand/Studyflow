@@ -11,7 +11,7 @@ const Documents = () => {
           <div>
             <h1 className="text-3xl font-bold tracking-tight mb-2 animate-slide-in">Documents</h1>
             <p className="text-muted-foreground animate-fade-in">
-              Manage your assignments, question papers, and study materials
+              Upload and manage your assignments, question papers, and study materials
             </p>
           </div>
           
@@ -20,6 +20,6 @@ const Documents = () => {
       </main>
     </div>
   );
-};
+}
 
 export default Documents;
