@@ -9,6 +9,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 type Assignment = {
   id: string;
@@ -76,6 +77,22 @@ export function AssignmentTracker() {
     );
   };
 
+  const handleNewAssignment = () => {
+    // In a real application, you would open a form modal here
+    // For now, we'll just add a new assignment with placeholder data
+    const newAssignment: Assignment = {
+      id: Date.now().toString(),
+      title: "New Assignment",
+      subject: "Study Subject",
+      dueDate: new Date(Date.now() + 259200000), // 3 days from now
+      completed: false,
+      progress: 0,
+    };
+    
+    setAssignments([newAssignment, ...assignments]);
+    toast.success("New assignment created successfully");
+  };
+
   const filteredAssignments = assignments.filter((assignment) => {
     if (activeTab === "upcoming") return !assignment.completed;
     if (activeTab === "completed") return assignment.completed;
@@ -115,7 +132,7 @@ export function AssignmentTracker() {
     <Card className="animate-fade-in">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Assignments</CardTitle>
-        <Button size="sm">
+        <Button size="sm" onClick={handleNewAssignment}>
           <Plus size={16} className="mr-2" />
           New Assignment
         </Button>
