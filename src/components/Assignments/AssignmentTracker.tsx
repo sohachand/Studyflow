@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -260,32 +261,35 @@ export function AssignmentTracker() {
                 Enter a new name for this assignment.
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={form.handleSubmit(handleRename)}>
-              <div className="grid gap-4 py-4">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Assignment Title</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Enter assignment title" 
-                          className="resize-none" 
-                          {...field} 
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button type="submit">Save Changes</Button>
-              </DialogFooter>
-            </form>
+            {/* This is the key fix - wrapping the form elements with a Form component */}
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleRename)}>
+                <div className="grid gap-4 py-4">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Assignment Title</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Enter assignment title" 
+                            className="resize-none" 
+                            {...field} 
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button type="submit">Save Changes</Button>
+                </DialogFooter>
+              </form>
+            </Form>
           </DialogContent>
         </Dialog>
       </CardContent>
