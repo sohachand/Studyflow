@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -63,7 +63,12 @@ const mockDocuments: Document[] = [
   },
 ];
 
-export function DocumentsList() {
+type DocumentsListProps = {
+  showUploadModalProp?: boolean;
+  setShowUploadModalProp?: (show: boolean) => void;
+};
+
+export function DocumentsList({ showUploadModalProp, setShowUploadModalProp }: DocumentsListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [documents, setDocuments] = useState<Document[]>(mockDocuments);
@@ -74,6 +79,21 @@ export function DocumentsList() {
     type: "notes" as Document["type"],
     file: null as File | null,
   });
+
+  // Sync with parent component's modal state
+  useEffect(() => {
+    if (showUploadModalProp !== undefined) {
+      setShowUploadModal(showUploadModalProp);
+    }
+  }, [showUploadModalProp]);
+
+  // Inform parent component when modal closes
+  const handleCloseModal = () => {
+    setShowUploadModal(false);
+    if (setShowUploadModalProp) {
+      setShowUploadModalProp(false);
+    }
+  };
 
   const filteredDocuments = documents.filter((doc) => {
     const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -148,7 +168,7 @@ export function DocumentsList() {
       file: null,
     });
     
-    setShowUploadModal(false);
+    handleCloseModal();
     toast.success("Document uploaded successfully!");
   };
 
@@ -167,8 +187,12 @@ export function DocumentsList() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Button onClick={() => setShowUploadModal(true)}>
-            <FilePlus size={16} className="mr-2" />
+          <Button 
+            onClick={() => setShowUploadModal(true)}
+            variant="outline"
+            className="bg-secondary hover:bg-secondary/80"
+          >
+            <FilePlus size={16} className="mr-2 text-primary" />
             Upload
           </Button>
         </div>
@@ -242,7 +266,7 @@ export function DocumentsList() {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  onClick={() => setShowUploadModal(false)}
+                  onClick={handleCloseModal}
                 >
                   <X size={18} />
                 </Button>
@@ -321,7 +345,7 @@ export function DocumentsList() {
                   <Button 
                     type="button" 
                     variant="outline" 
-                    onClick={() => setShowUploadModal(false)}
+                    onClick={handleCloseModal}
                   >
                     Cancel
                   </Button>
