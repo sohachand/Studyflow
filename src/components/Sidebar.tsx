@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { BookOpen, FileText, Calendar, Clock, Menu, X, Home } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { toast } from "sonner";
 
 type NavItem = {
   label: string;
@@ -43,6 +44,17 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
+  const handleToggleSidebar = () => {
+    setCollapsed(!collapsed);
+    toast.success(collapsed ? "Sidebar expanded" : "Sidebar collapsed");
+  };
+
+  const handleNavigation = (label: string) => {
+    if (!collapsed) {
+      toast.info(`Navigating to ${label}`);
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -58,7 +70,7 @@ export function Sidebar() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={handleToggleSidebar}
           className="ml-auto text-white hover:bg-white/20"
         >
           {collapsed ? <Menu size={20} /> : <X size={20} />}
@@ -72,6 +84,7 @@ export function Sidebar() {
             <Link
               key={item.label}
               to={item.route}
+              onClick={() => handleNavigation(item.label)}
               className={cn(
                 "flex items-center gap-4 px-3 py-2 rounded-md transition-all duration-200",
                 "focus-ring",

@@ -4,12 +4,14 @@ import { DocumentsList } from "@/components/Documents/DocumentsList";
 import { Button } from "@/components/ui/button";
 import { FilePlus } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const Documents = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   
   const handleOpenUploadModal = () => {
     setShowUploadModal(true);
+    toast.success("Upload document modal opened");
   };
 
   return (
