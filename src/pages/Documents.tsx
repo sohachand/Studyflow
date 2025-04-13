@@ -17,17 +17,18 @@ const Documents = () => {
       <Sidebar />
       <main className="flex-1 p-6">
         <div className="max-w-6xl mx-auto space-y-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight mb-2 animate-slide-in">Documents</h1>
-              <p className="text-muted-foreground animate-fade-in">
-                Upload and manage your assignments, question papers, and study materials
-              </p>
-            </div>
+          <div className="bg-gradient-to-r from-accent/10 to-primary/10 p-6 rounded-lg">
+            <h1 className="text-3xl font-bold tracking-tight mb-2 animate-slide-in bg-gradient-accent bg-clip-text text-transparent">Documents</h1>
+            <p className="text-muted-foreground animate-fade-in">
+              Upload and manage your assignments, question papers, and study materials
+            </p>
+          </div>
+          
+          <div className="flex justify-end">
             <Button 
               onClick={handleOpenUploadModal} 
               size="lg" 
-              className="animate-fade-in"
+              className="animate-fade-in bg-gradient-accent hover:opacity-90 transition-opacity"
             >
               <FilePlus size={20} className="mr-2" />
               Upload Document

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { BookOpen, FileText, Calendar, Clock, Menu, X, Home } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 type NavItem = {
   label: string;
@@ -41,47 +41,55 @@ const navItems: NavItem[] = [
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
 
   return (
     <div
       className={cn(
-        "h-screen sticky top-0 flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300",
+        "h-screen sticky top-0 flex flex-col border-r border-sidebar-border transition-all duration-300",
+        "bg-sidebar bg-opacity-90 backdrop-blur-sm shadow-md",
         collapsed ? "w-16" : "w-64"
       )}
     >
-      <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+      <div className="flex items-center justify-between p-4 border-b border-sidebar-border bg-gradient-primary bg-opacity-90">
         {!collapsed && (
-          <h1 className="font-semibold text-lg animate-fade-in">StudyFlow</h1>
+          <h1 className="font-bold text-xl text-white animate-fade-in">StudyFlow</h1>
         )}
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto"
+          className="ml-auto text-white hover:bg-white/20"
         >
           {collapsed ? <Menu size={20} /> : <X size={20} />}
         </Button>
       </div>
 
       <nav className="flex-1 p-3 space-y-2 overflow-y-auto">
-        {navItems.map((item) => (
-          <Link
-            key={item.label}
-            to={item.route}
-            className={cn(
-              "flex items-center gap-4 px-3 py-2 rounded-md text-sidebar-foreground hover:bg-sidebar-accent transition-colors",
-              "focus-ring"
-            )}
-          >
-            <item.icon size={20} />
-            {!collapsed && <span>{item.label}</span>}
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.route;
+          return (
+            <Link
+              key={item.label}
+              to={item.route}
+              className={cn(
+                "flex items-center gap-4 px-3 py-2 rounded-md transition-all duration-200",
+                "focus-ring",
+                isActive 
+                  ? "bg-gradient-primary text-white font-medium shadow-md" 
+                  : "text-sidebar-foreground hover:bg-sidebar-accent/80"
+              )}
+            >
+              <item.icon size={20} className={isActive ? "animate-bounce-subtle" : ""} />
+              {!collapsed && <span>{item.label}</span>}
+            </Link>
+          );
+        })}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border">
+      <div className="p-4 border-t border-sidebar-border bg-sidebar-accent/50">
         {!collapsed && (
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-sidebar-foreground font-medium">
             StudyFlow v1.0.0
           </div>
         )}
