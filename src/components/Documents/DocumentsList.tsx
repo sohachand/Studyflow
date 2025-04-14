@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { 
-  FileText, Search, FilePlus, FileQuestion, FileCheck, Upload, X 
+  FileText, Search, FilePlus, FileQuestion, FileCheck, Upload, X, Eye
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -73,6 +74,9 @@ export function DocumentsList({ showUploadModalProp, setShowUploadModalProp }: D
   const [activeTab, setActiveTab] = useState("all");
   const [documents, setDocuments] = useState<Document[]>(mockDocuments);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [viewPdfModal, setViewPdfModal] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [uploadForm, setUploadForm] = useState({
     title: "",
     subject: "",
@@ -86,6 +90,15 @@ export function DocumentsList({ showUploadModalProp, setShowUploadModalProp }: D
       setShowUploadModal(showUploadModalProp);
     }
   }, [showUploadModalProp]);
+
+  // Clean up PDF URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [pdfUrl]);
 
   // Inform parent component when modal closes
   const handleCloseModal = () => {
@@ -135,6 +148,30 @@ export function DocumentsList({ showUploadModalProp, setShowUploadModalProp }: D
       }
       
       setUploadForm({ ...uploadForm, file });
+    }
+  };
+
+  const handleViewPdf = (doc: Document) => {
+    setSelectedDocument(doc);
+    
+    // If the document has a file object attached (for newly uploaded docs)
+    if (doc.file) {
+      const url = URL.createObjectURL(doc.file);
+      setPdfUrl(url);
+      setViewPdfModal(true);
+    } else {
+      // For mock documents, we would normally fetch from server
+      // Since this is a demo, we'll just show a message
+      toast.error("This is a mock document and doesn't have an actual PDF file.");
+    }
+  };
+
+  const handleClosePdfModal = () => {
+    setViewPdfModal(false);
+    setSelectedDocument(null);
+    if (pdfUrl) {
+      URL.revokeObjectURL(pdfUrl);
+      setPdfUrl(null);
     }
   };
 
@@ -209,10 +246,11 @@ export function DocumentsList({ showUploadModalProp, setShowUploadModalProp }: D
           <TabsContent value={activeTab} className="mt-0">
             <div className="rounded-md border">
               <div className="grid grid-cols-12 p-4 text-sm font-medium text-muted-foreground border-b">
-                <div className="col-span-6">Document</div>
+                <div className="col-span-5">Document</div>
                 <div className="col-span-2 text-center">Type</div>
                 <div className="col-span-2 text-center">Date</div>
                 <div className="col-span-2 text-center">Size</div>
+                <div className="col-span-1 text-center">Action</div>
               </div>
               {filteredDocuments.length > 0 ? (
                 filteredDocuments.map((doc) => (
@@ -220,7 +258,7 @@ export function DocumentsList({ showUploadModalProp, setShowUploadModalProp }: D
                     key={doc.id}
                     className="grid grid-cols-12 p-4 hover:bg-secondary/50 transition-colors text-sm"
                   >
-                    <div className="col-span-6 flex items-center gap-2">
+                    <div className="col-span-5 flex items-center gap-2">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary">
                         {getIcon(doc.type)}
                       </div>
@@ -245,6 +283,16 @@ export function DocumentsList({ showUploadModalProp, setShowUploadModalProp }: D
                     </div>
                     <div className="col-span-2 flex items-center justify-center">
                       {doc.fileSize}
+                    </div>
+                    <div className="col-span-1 flex items-center justify-center">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleViewPdf(doc)}
+                        title="View PDF"
+                      >
+                        <Eye size={16} className="text-primary" />
+                      </Button>
                     </div>
                   </div>
                 ))
@@ -355,6 +403,38 @@ export function DocumentsList({ showUploadModalProp, setShowUploadModalProp }: D
             </div>
           </div>
         )}
+
+        {/* PDF Viewer Modal */}
+        <Dialog open={viewPdfModal} onOpenChange={setViewPdfModal}>
+          <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+            <DialogHeader>
+              <DialogTitle>{selectedDocument?.title}</DialogTitle>
+              <DialogDescription>
+                {selectedDocument?.subject} - {selectedDocument?.type.replace('_', ' ')}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="flex-1 min-h-0 border rounded-md">
+              {pdfUrl ? (
+                <iframe 
+                  src={pdfUrl}
+                  title={selectedDocument?.title || "PDF Viewer"}
+                  className="w-full h-full rounded-md"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-muted-foreground">No PDF available for preview</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex justify-end mt-4">
+              <DialogClose asChild>
+                <Button onClick={handleClosePdfModal}>Close</Button>
+              </DialogClose>
+            </div>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
